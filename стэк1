@@ -1,0 +1,165 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace стэк1
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Stack1T <string> obj1 = new Stack1T <string>(3);
+            Console.WriteLine(obj1.Size());
+            Console.WriteLine(obj1.Top());
+            obj1.Push("first");
+            obj1.Push("second");
+            Console.WriteLine(obj1.Empty());
+            Console.WriteLine(obj1.Size());
+            obj1.Push("third");
+            obj1.Push("fourth");
+            while (!obj1.Empty())
+            {
+                Console.WriteLine(obj1.Top());
+                obj1.Pop();
+            }
+            obj1.Pop();
+            Console.WriteLine(obj1.Empty());
+            Console.ReadKey();
+        }
+    }
+
+}
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Saod1
+{
+    class Stack1
+    {
+        private int[] array;
+        public int count;
+        public Stack1(int length)
+        {
+            array = new int[length];
+        }
+        public void Push(int x)
+        {
+            array[count] = x;
+            count++;
+            if (count >= array.Length)
+            {
+                Console.WriteLine("-1");
+            }
+
+        }
+
+        public int Peek()
+        {
+            if (count > 0)
+            {
+                return (array[count - 1]);
+            }
+            else return (default(int));
+        }
+        public int Pop()
+        {
+            if (count > 0)
+            {
+                int temp = Peek();
+                return array[--count];
+            }
+            else
+            {
+                throw new Exception("Stack-");
+            }
+        }
+        public bool Empty()
+        {
+            return count == 0;
+        }
+        public void Clear()
+        {
+            count = 0;
+        }
+
+    }
+}
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace стэк1
+{
+    class Stack1T<T>
+    {
+        private T[] array;
+        public int count;
+        public Stack1T(int length)
+        {
+            array = new T[length];
+        }
+        public void Push(T x)
+        {
+
+            if (count >= array.Length)
+            {
+                Console.WriteLine("fourth");
+            }
+            else
+            {
+                array[count] = x;
+                count++;
+            }
+        }
+        public int Size()
+        {
+            return count;
+        }
+        public T Peek()
+        {
+            if (count <= 0)
+            {
+                return default(T);
+            }
+            else return (array[count - 1]);
+        }
+        public T Pop()
+        {
+            if (count > 0)
+            {
+                T temp = Peek();
+                --count;
+                return temp;
+            }
+            else return default(T);
+        }
+        public T Top()
+        {
+            if (count > 0)
+            {
+                T temp = Peek();
+                return temp;
+            }
+            else return default(T);
+        }
+        public bool Empty()
+        {
+            return count == 0;
+        }
+        public void Clear()
+        {
+            count = 0;
+        }
+    }
+}
+
+
