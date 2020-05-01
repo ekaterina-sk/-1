@@ -1,0 +1,335 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace стэк2
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            //Stack
+            System.Diagnostics.Stopwatch watch;
+            long elapsedMs;
+            int N = 100000;
+            {  
+                Stack3 obj1 = new Stack3();
+                {
+                    //for (int i = 0; i < N; i++)
+                    //{
+                    //    obj1.Push(i);
+                    //    Console.WriteLine(i);
+                    //}
+                    Console.WriteLine(obj1.Top());
+                    Console.WriteLine(obj1.Size());
+                    Console.WriteLine(obj1.Empty());
+                    for (int i = 0; i < N; i++)
+                    {
+                        obj1.Pop();
+                    }
+                    Console.WriteLine(obj1.Top());
+                    Console.WriteLine(obj1.Size());
+                    Console.WriteLine(obj1.Empty());
+                }
+            }
+            {
+                var stack = new Stack<int>();
+                watch = System.Diagnostics.Stopwatch.StartNew();
+                for (int i = 0; i != N; i++)
+                {
+                    stack.Push(i);
+                }
+                for (int i = 0; i != N; i++)
+                {
+                    stack.Pop();
+                }
+                watch.Stop();
+                elapsedMs = watch.ElapsedMilliseconds;
+                Console.WriteLine("System stack");
+                Console.WriteLine(elapsedMs);
+            }
+
+            //Stack1///////////////////////////////
+            {
+                elapsedMs = 0;
+                Stack1 St1 = new Stack1(100000000);
+                watch = System.Diagnostics.Stopwatch.StartNew();
+                for (int i = 0; i != N; i++)
+                {
+                    St1.Push(i);
+                }
+                for (int i = 0; i != N; i++)
+                {
+                    St1.Pop();
+                }
+                watch.Stop();
+                elapsedMs = watch.ElapsedMilliseconds;
+                Console.WriteLine("My stack1");
+                Console.WriteLine(elapsedMs);
+            }
+
+            //Stack2///////////////////////////////
+            {
+                elapsedMs = 0;
+                Stack2 St2 = new Stack2();
+                watch = System.Diagnostics.Stopwatch.StartNew();
+                for (int i = 0; i != N; i++)
+                {
+                    St2.Push(i);
+                }
+                for (int i = 0; i != N; i++)
+                {
+                    St2.Pop();
+                }
+                watch.Stop();
+                elapsedMs = watch.ElapsedMilliseconds;
+                Console.WriteLine("My stack2");
+                Console.WriteLine(elapsedMs);
+            }
+
+            //Stack3///////////////////////////////
+            {
+                elapsedMs = 0;
+                Stack3 St3 = new Stack3();
+                watch = System.Diagnostics.Stopwatch.StartNew();
+                for (int i = 0; i != N; i++)
+                {
+                    St3.Push(i);
+                }
+                for (int i = 0; i != N; i++)
+                {
+                    St3.Pop();
+                }
+                watch.Stop();
+                elapsedMs = watch.ElapsedMilliseconds;
+                Console.WriteLine("My stack3");
+                Console.WriteLine(elapsedMs);
+            }
+
+            //Stack4///////////////////////////////
+            {
+                elapsedMs = 0;
+                Stack4 St4 = new Stack4();
+                watch = System.Diagnostics.Stopwatch.StartNew();
+                for (int i = 0; i != N; i++)
+                {
+                    St4.Push(i);
+                }
+                for (int i = 0; i != N; i++)
+                {
+                    St4.Pop();
+                }
+
+                watch.Stop();
+                elapsedMs = watch.ElapsedMilliseconds;
+                Console.WriteLine("My stack4");
+                Console.WriteLine(elapsedMs);
+            }
+        }
+    }
+}
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace стэк2
+{
+    class Stack1
+    {
+        private int n;
+        private int[] s;
+        public Stack1(int k)
+        {
+            s = new int[k];
+            n = 0;
+        }
+        public void Push(int x)
+        {
+            if (n < s.Length)
+            {
+                s[n] = x;
+                n++;
+            }
+        }
+        public int Top()
+        {
+            if (n > 0)
+                return s[n - 1];
+            else
+            {
+                return 0;
+            }
+        }
+        public void Pop()
+        {
+            if (n != 0)
+                n--;
+        }
+        public bool Empty()
+        {
+            return n == 0 ? true : false;
+        }
+        public int Size()
+        {
+            return n;
+        }
+    }
+}
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace стэк2
+{
+    class Stack2
+    {
+        private int n;
+        private int[] s;
+        public Stack2()
+        {
+            s = new int[0];
+            n = 0;
+        }
+        public void Push(int x)
+        {
+            Array.Resize(ref s, n + 1);
+            s[n] = x;
+            n++;
+        }
+        public void Pop()
+        {
+            if (s.Length > 0)
+            {
+                Array.Resize(ref s, n - 1);
+                n--;
+            }
+        }
+        public bool Empty()
+        {
+            return n == 0 ? true : false;
+        }
+        public int Top()
+        {
+            if (n > 0)
+                return s[n - 1];
+            else return 0;
+        }
+        public int Size()
+        {
+            return n;
+        }
+    }
+}
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace стэк2
+{
+    class Stack3
+    {
+        private int n;
+        private int[] s;
+        public Stack3()
+        {
+            s = new int[0];
+            n = 0;
+        }
+        public void Push(int x)
+        {
+            int[] t = new int[n + 1];
+            for (int i = 0; i < s.Length; i++)
+            {
+                t[i] = s[i];
+            }
+            t[t.Length - 1] = x;
+            n++;
+            s = t;
+        }
+        public int Top()
+        {
+            if (n > 0)
+                return s[n - 1];
+            else return 0;
+        }
+        public void Pop()
+        {
+            if (n != 0)
+            {
+                int[] t = new int[n - 1];
+                for (int i = 0; i < s.Length - 1; i++)
+                {
+                    t[i] = s[i];
+                }
+                n--;
+                s = t;
+            }
+        }
+        public bool Empty()
+        {
+            return n == 0 ? true : false;
+        }
+        public int Size()
+        {
+            return n;
+        }
+    }
+}
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+
+namespace стэк2
+{
+    class Stack4
+    {
+        private int n;
+        private List<int> s;
+        public Stack4()
+        {
+            s = new List<int>();
+        }
+        public void Push(int x)
+        {
+            s.Add(x);
+            n++;
+        }
+        public void Pop()
+        {
+            if (n != 0)
+            {
+                s.RemoveAt(n - 1);
+                n--;
+            }
+        }
+        public int Top()
+        {
+            if (n != 0)
+                return s.Last();
+            else return 0;
+        }
+        public int Size()
+        {
+            return n;
+        }
+        public bool Empty()
+        {
+            return n == 0 ? true : false;
+        }
+    }
+}
