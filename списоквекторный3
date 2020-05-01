@@ -1,0 +1,195 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace св3
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Class1<int> g = new Class1<int>(7);
+            Console.WriteLine();
+            Console.WriteLine(g.Find1(x => x > 6));
+            Console.WriteLine(g.FindIndex1(x => x > 1));
+        }
+    }
+}
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace св3
+{
+    class Class1<T> : IEnumerable<T>
+    {
+        public int r = 0;
+        public int number = 0;
+        public int help = -1;
+        private T[] array;
+        public int count
+        {
+            get;
+            private set;
+        }
+        public Class1(int length)
+        {
+            try
+            {
+                array = new T[length];
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+        public int Size()
+        {
+            return count;
+        }
+        public int Insert2(T element, int place)
+        {
+            if (count == 0 || place >= count - 1)
+            {
+                array[count] = element;
+                number++;
+            }
+            else
+            {
+                for (int i = Size(); i != place; i--)
+                {
+                    array[i] = array[i - 1];
+                    number++;
+                }
+                array[place] = element;
+                count++;
+            }
+            return number;
+        }
+        public T this[int i]
+        {
+            get
+            {
+                return array[i];
+            }
+            set
+            {
+                array[i] = value;
+            }
+
+        }
+        public void ForEach(System.Action<T> action)
+        {
+            for (int i = 0; i != Size(); ++i)
+            {
+                action(array[i]);
+            }
+        }
+        public T Find1(Predicate<T> match)
+        {
+
+            for (int i = 0; i < Size(); i++)
+            {
+                if (match(array[i]))
+                {
+                    help = i;
+                    return array[i];
+                }
+            }
+
+            return default(T);
+        }
+        public int FindIndex1(Predicate<T> match)
+        {
+            Find1(match);
+            return help;
+        }
+        public bool Contains1(T item)
+        {
+            //int r = 0;
+            for (int i = 0; i < Size(); i++)
+            {
+                if ((item.GetType() == typeof(int)) && array[i].GetType() == typeof(int))
+                {
+                    int a = Convert.ToInt32(array[i]);
+                    int b = Convert.ToInt32(item);
+                    if (a == b) return true;
+                }
+                if ((item.GetType() == typeof(char)) && array[i].GetType() == typeof(char))
+                {
+                    char a = Convert.ToChar(array[i]);
+                    char b = Convert.ToChar(item);
+                    if (a == b) return true;
+                }
+                if ((item.GetType() == typeof(string)) && array[i].GetType() == typeof(string))
+                {
+                    string a = Convert.ToString(array[i]);
+                    string b = Convert.ToString(item);
+                    if (a == b) return true;
+                }
+                if ((item.GetType() == typeof(double)) && array[i].GetType() == typeof(double))
+                {
+                    double a = Convert.ToDouble(array[i]);
+                    double b = Convert.ToDouble(item);
+                    if (a == b) return true;
+                }
+                r++;
+            }
+            return false;
+        }
+        public static bool operator ==(Class1<T> g, T item2)
+        {
+            if ((g.GetType() == typeof(int)) && item2.GetType() == typeof(int))
+            {
+                int a = Convert.ToInt32(g);
+                int b = Convert.ToInt32(item2);
+                return a == b;
+            }
+            else if ((g.GetType() == typeof(char)) && item2.GetType() == typeof(char))
+            {
+                char a = Convert.ToChar(g);
+                char b = Convert.ToChar(item2);
+                return a == b;
+            }
+            else return false;
+        }
+        public static bool operator !=(Class1<T> g, T item2)
+        {
+            return Equals(g, item2);
+        }
+        public int IndexOf1(T item)
+        {
+            if (Contains1(item))
+            {
+                return r;
+            }
+            else return -1;
+        }
+       
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public bool Equals(T other)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
