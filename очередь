@@ -1,0 +1,211 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace очередь
+{
+    static class Program
+    {
+        /// <summary>
+        /// Главная точка входа для приложения.
+        /// </summary>
+        [STAThread]
+        static void Main()
+        {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new Form1());
+        }
+    }
+}
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace очередь
+{
+    public class ochered : IEnumerable
+    {
+        public Node front;
+        public Node rear;
+        public int count { get; private set; }
+        public ochered()
+        {
+
+        }
+        public void Enqeue(int x)
+        {
+            var t = new Node(x);
+            if (rear == null)
+            {
+                front = rear = t;
+            }
+            rear.next = t;
+            rear = t;
+            count++;
+        }
+        public void Deqeue()
+        {
+            if (front == null)
+                return;
+            var t = front;
+            front = front.next;
+            if (front == null)
+                rear = null;
+            count--;
+        }
+        public IEnumerator GetEnumerator()
+        {
+            Node curr = front;
+            for (int i = 1; curr != null; i++)
+            {
+                string s = Convert.ToString(i);
+                s += ". ";
+                s += Convert.ToString(curr.key);
+                yield return s;
+                curr = curr.next;
+
+            }
+        }
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+        public int this[int i]
+        {
+            get
+            {
+                return front.key;
+            }
+            set
+            {
+                front.key = value;
+            }
+
+        }
+    }
+}
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace очередь
+{
+    public class Node
+    {
+
+        public int key;
+        public Node next;
+
+        public Node(int x)
+        {
+            key = x;
+        }
+
+    }
+}
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace очередь
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+        int count = 1;
+        int count1 = 0;
+        int place = 0;
+        int n = 0;
+        ochered x = new ochered();
+        ochered x2 = new ochered();
+        ochered x3 = new ochered();
+        ochered x5 = new ochered();
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Button1_Click(object sender, EventArgs e)
+        {
+            count1 = Convert.ToInt32(textBox1.Text) + 1;
+            x2.Enqeue(1);
+            x3.Enqeue(1);
+            x5.Enqeue(1);
+
+            while (count < count1)
+            {
+
+                int y = 0;
+                x2.Enqeue(count * 2);
+                x3.Enqeue(count * 3);
+                x5.Enqeue(count * 5);
+                if (x2[0] <= x3[0])
+                {
+                    if (x2[0] == x3[0]) x3.Deqeue();
+                    n = x2[0];
+                    y = 1;
+                    place = 2;
+                }
+                else if (x2[0] > x3[0])
+                {
+                    n = x3[0];
+                    place = 3;
+                    y = 1;
+
+                }
+
+                if (x5[0] <= x2[0] && place == 2)
+                {
+                    if (x5[0] == x2[0]) x2.Deqeue();
+                    n = x5[0];
+                    x5.Deqeue();
+                    place = 5;
+                    y = 0;
+                }
+                if (x5[0] <= x3[0] && place == 3)
+                {
+                    if (x5[0] == x3[0]) x3.Deqeue();
+                    n = x5[0];
+                    x5.Deqeue();
+                    place = 5;
+                    y = 0;
+                }
+                if (y == 1)
+                {
+                    if (place == 2) x2.Deqeue();
+                    if (place == 3) x3.Deqeue();
+                }
+                x.Enqeue(n);
+                count++;
+
+            }
+            foreach (var i in x) listBox1.Items.Add(i);
+        }
+
+        private void ListBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+    }
+}
