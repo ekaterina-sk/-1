@@ -1,0 +1,379 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace sortirovka
+{
+    static class Program
+    {
+        /// <summary>
+        /// Главная точка входа для приложения.
+        /// </summary>
+        [STAThread]
+        static void Main()
+        {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new Form1());
+        }
+    }
+}
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace sortirovka
+{
+    class KeyVal
+    {
+        public int key;
+        public int val;
+        public KeyVal()
+        {
+            key = 0;val = 0;
+        }
+        public KeyVal(int key,int val)
+        {
+            this.key = key;
+            this.val = val;
+        }
+    }
+}
+
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace sortirovka
+{
+    public partial class Form1 : Form
+    {
+        KeyVal[] x;
+        int tt;
+        public Form1()
+        {
+            InitializeComponent();
+        }
+        public int GetRadioIndex(GroupBox group)
+        {
+            foreach (Control control in group.Controls)
+                if (control is RadioButton)
+                    if (((RadioButton)control).Checked)
+                        return int.Parse(control.Tag.ToString());
+            return -1;
+        }
+        private void button1_Click(object sender, EventArgs e)
+        {
+            var n = Convert.ToInt32(textBox2.Text);
+            var rnd = new System.Random();
+            var init = Enumerable.Range(0, n).OrderBy(b => rnd.Next()).ToArray();
+            x = new KeyVal[n];
+            for (int i = 0; i < init.Length; i++)
+            {
+                x[i] = new KeyVal(i, init[i]);
+            }
+
+            tt = x[0].val;
+            x[n / 2].val = x[0].val;
+            x[n - 1].val = x[0].val;
+            chart1.Series[0].Points.Clear();
+            chart1.ChartAreas[0].AxisX.Minimum = -1;
+            chart1.ChartAreas[0].AxisX.Maximum = n;
+            for (int i = 0; i != n; i++)
+            {
+                chart1.Series[0].Points.AddXY(i, x[i].val);
+                chart1.Series[0].Points[i].AxisLabel = x[i].key.ToString();
+
+                
+            }
+        }
+
+        private KeyVal[] BubbleSort(KeyVal[] x)
+        {
+            KeyVal temp = new KeyVal();
+            for (int i = 0; i < x.Length; i++)
+            {
+                for (int j = 0; j < x.Length - 1; j++)
+                {
+                    if (x[j].val > x[j + 1].val)
+                    {
+                        temp = x[j + 1];
+                        x[j + 1] = x[j];
+                        x[j] = temp;
+                    }
+                }
+            }
+            return x;
+        }
+
+        private KeyVal[] ShellSort(KeyVal[] x)
+        {
+            int n = x.Length;
+            int gap = n / 2;
+            KeyVal temp=new KeyVal();
+
+            while (gap > 0)
+            {
+                for (int i = 0; i + gap < n; i++)
+                {
+                    int j = i + gap;
+                    temp = x[j];
+
+                    while (j - gap >= 0 && temp.val < x[j - gap].val)
+                    {
+                        x[j] = x[j - gap];
+                        j = j - gap;
+                    }
+
+                    x[j] = temp;
+                }
+
+                gap = gap / 2;
+            }
+            return x;
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            switch (GetRadioIndex(groupBox1))
+            {
+                case 3:
+                    Array.Sort(x,(a,b)=>a.val.CompareTo(b.val));
+                    break;
+                case 0:
+                    x = BubbleSort(x);
+                    break;
+                case 1:
+                    x = ShellSort(x);
+                    break;
+                default:
+                    break;
+            }
+
+            chart1.Series[0].Points.Clear();
+            chart1.ChartAreas[0].AxisX.Minimum = -1;
+            chart1.ChartAreas[0].AxisX.Maximum = x.Length;
+            for (int i = 0; i != x.Length; i++)
+            {
+                chart1.Series[0].Points.AddXY(i, x[i].val);
+                chart1.Series[0].Points[i].AxisLabel = x[i].key.ToString();
+
+              
+            }
+        
+        }
+
+        
+    }
+}
+
+
+namespace sortirovka
+{
+    partial class Form1
+    {
+        /// <summary>
+        /// Обязательная переменная конструктора.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// Освободить все используемые ресурсы.
+        /// </summary>
+        /// <param name="disposing">истинно, если управляемый ресурс должен быть удален; иначе ложно.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Код, автоматически созданный конструктором форм Windows
+
+        /// <summary>
+        /// Требуемый метод для поддержки конструктора — не изменяйте 
+        /// содержимое этого метода с помощью редактора кода.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.button2 = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
+            this.radioButton5 = new System.Windows.Forms.RadioButton();
+            this.radioButton3 = new System.Windows.Forms.RadioButton();
+            this.radioButton2 = new System.Windows.Forms.RadioButton();
+            this.radioButton1 = new System.Windows.Forms.RadioButton();
+            this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
+            this.SuspendLayout();
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.textBox2);
+            this.groupBox1.Controls.Add(this.button2);
+            this.groupBox1.Controls.Add(this.button1);
+            this.groupBox1.Controls.Add(this.radioButton5);
+            this.groupBox1.Controls.Add(this.radioButton3);
+            this.groupBox1.Controls.Add(this.radioButton2);
+            this.groupBox1.Controls.Add(this.radioButton1);
+            this.groupBox1.Location = new System.Drawing.Point(687, 15);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox1.Size = new System.Drawing.Size(361, 538);
+            this.groupBox1.TabIndex = 0;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Tag = "";
+            this.groupBox1.Text = "Algorithm";
+            // 
+            // textBox2
+            // 
+            this.textBox2.Location = new System.Drawing.Point(116, 214);
+            this.textBox2.Margin = new System.Windows.Forms.Padding(4);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(236, 22);
+            this.textBox2.TabIndex = 8;
+            this.textBox2.Text = "10";
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(8, 246);
+            this.button2.Margin = new System.Windows.Forms.Padding(4);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(100, 28);
+            this.button2.TabIndex = 6;
+            this.button2.Text = "Sort";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(8, 210);
+            this.button1.Margin = new System.Windows.Forms.Padding(4);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(100, 28);
+            this.button1.TabIndex = 5;
+            this.button1.Text = "init";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // radioButton5
+            // 
+            this.radioButton5.AutoSize = true;
+            this.radioButton5.Location = new System.Drawing.Point(8, 109);
+            this.radioButton5.Margin = new System.Windows.Forms.Padding(4);
+            this.radioButton5.Name = "radioButton5";
+            this.radioButton5.Size = new System.Drawing.Size(82, 21);
+            this.radioButton5.TabIndex = 4;
+            this.radioButton5.TabStop = true;
+            this.radioButton5.Tag = "4";
+            this.radioButton5.Text = "OrderBy";
+            this.radioButton5.UseVisualStyleBackColor = true;
+            // 
+            // radioButton3
+            // 
+            this.radioButton3.AutoSize = true;
+            this.radioButton3.Location = new System.Drawing.Point(8, 80);
+            this.radioButton3.Margin = new System.Windows.Forms.Padding(4);
+            this.radioButton3.Name = "radioButton3";
+            this.radioButton3.Size = new System.Drawing.Size(91, 21);
+            this.radioButton3.TabIndex = 2;
+            this.radioButton3.TabStop = true;
+            this.radioButton3.Tag = "2";
+            this.radioButton3.Text = "QuickSort";
+            this.radioButton3.UseVisualStyleBackColor = true;
+            // 
+            // radioButton2
+            // 
+            this.radioButton2.AutoSize = true;
+            this.radioButton2.Location = new System.Drawing.Point(8, 52);
+            this.radioButton2.Margin = new System.Windows.Forms.Padding(4);
+            this.radioButton2.Name = "radioButton2";
+            this.radioButton2.Size = new System.Drawing.Size(86, 21);
+            this.radioButton2.TabIndex = 1;
+            this.radioButton2.TabStop = true;
+            this.radioButton2.Tag = "1";
+            this.radioButton2.Text = "ShellSort";
+            this.radioButton2.UseVisualStyleBackColor = true;
+            // 
+            // radioButton1
+            // 
+            this.radioButton1.AutoSize = true;
+            this.radioButton1.Location = new System.Drawing.Point(8, 23);
+            this.radioButton1.Margin = new System.Windows.Forms.Padding(4);
+            this.radioButton1.Name = "radioButton1";
+            this.radioButton1.Size = new System.Drawing.Size(101, 21);
+            this.radioButton1.TabIndex = 0;
+            this.radioButton1.TabStop = true;
+            this.radioButton1.Tag = "0";
+            this.radioButton1.Text = "Bubble sort";
+            this.radioButton1.UseVisualStyleBackColor = true;
+            // 
+            // chart1
+            // 
+            chartArea1.Name = "ChartArea1";
+            this.chart1.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.chart1.Legends.Add(legend1);
+            this.chart1.Location = new System.Drawing.Point(16, 15);
+            this.chart1.Margin = new System.Windows.Forms.Padding(4);
+            this.chart1.Name = "chart1";
+            series1.ChartArea = "ChartArea1";
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            this.chart1.Series.Add(series1);
+            this.chart1.Size = new System.Drawing.Size(663, 537);
+            this.chart1.TabIndex = 1;
+            this.chart1.Text = "chart1";
+            // 
+            // Form1
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(1064, 566);
+            this.Controls.Add(this.chart1);
+            this.Controls.Add(this.groupBox1);
+            this.Margin = new System.Windows.Forms.Padding(4);
+            this.Name = "Form1";
+            this.Text = "Form1";
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
+            this.ResumeLayout(false);
+
+        }
+
+        #endregion
+
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.RadioButton radioButton5;
+        private System.Windows.Forms.RadioButton radioButton3;
+        private System.Windows.Forms.RadioButton radioButton2;
+        private System.Windows.Forms.RadioButton radioButton1;
+        private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
+    }
+}
+
