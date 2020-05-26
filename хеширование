@@ -1,0 +1,306 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace хэширование
+{
+    class Program
+    {
+            /// <summary>
+            /// Главная точка входа для приложения.
+            /// </summary>
+            [STAThread]
+            static void Main()
+            {
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                Application.Run(new Form1());
+            }
+        
+    }
+}
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace хэширование
+{
+    class Item
+    {
+        public string Key;
+        public string Value;
+        public Item(string s)
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                Key += s[i];
+            }
+            for (int i = 5; i < s.Length; i++)
+            {
+                Value += s[i];
+            }
+        }
+
+        public override string ToString()
+        {
+            return Key;
+        }
+    }
+}
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace хэширование
+{
+
+    public class HashTable
+    {
+
+        int size_table;
+        private Dictionary<int, List<Item>> collections;
+
+        public HashTable(int size)
+        {
+            Collections = new Dictionary<int, List<Item>>(size);
+            size_table = size;
+        }
+
+        internal Dictionary<int, List<Item>> Collections { get => collections; set => collections = value; }
+
+        public int Add(string s)
+        {
+
+            var current = new Item(s);
+            var hash_value = GetHash(current.Key);
+            List<Item> for_certain_hash = null;
+            if (Collections.ContainsKey(hash_value))
+            {
+                for_certain_hash = Collections[hash_value];
+
+                var old = for_certain_hash.SingleOrDefault(i => i.Key == current.Key);
+                if (old == null)
+                {
+                    Collections[hash_value].Add(current);
+                }
+            }
+            else
+            {
+                for_certain_hash = new List<Item> { current };
+                Collections.Add(hash_value, for_certain_hash);
+            }
+            return hash_value;
+        }
+        public void Delete(string key)
+        {
+            var hash_value = GetHash(key);
+            if (!Collections.ContainsKey(hash_value))
+            {
+                return;
+            }
+            var hashTableItem = Collections[hash_value];
+            var item = hashTableItem.SingleOrDefault(i => i.Key == key);
+            if (item != null)
+            {
+                hashTableItem.Remove(item);
+            }
+        }
+        public string Find(string key)
+        {
+            var hash_value = GetHash(key);
+            if (!Collections.ContainsKey(hash_value))
+            {
+                return "не нашел";
+            }
+            var hashTableItem = Collections[hash_value];
+            if (hashTableItem != null)
+            {
+                var val = hashTableItem.SingleOrDefault(i => i.Key == key);
+                if (val != null)
+                {
+                    return val.Value;
+                }
+            }
+            return "не нашел";
+        }
+        public int GetHash(string value)
+        {
+            int key = value.GetHashCode();
+            return Math.Abs(key) % size_table;
+        }
+    }
+}
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace хэширование
+{
+        public partial class Form1 : Form
+
+        {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+        public static double Sigma(List<double> curr)
+            {
+                double sum = 0;
+                for (int i = 0; i < curr.Count; i++)
+                {
+                    sum += curr[i];
+                }
+                sum /= curr.Count;
+                sum = Math.Sqrt(sum);
+                curr.Clear();
+                return sum;
+
+            }
+            
+            string input_text;
+            int size = 0;
+            int number = 0;
+            List<int> arr;
+            HashTable obj;
+            List<double> time = new List<double>();
+
+            private void Form1_Load(object sender, EventArgs e)
+            {
+
+            }
+
+            private void button2_Click_1(object sender, EventArgs e)
+            {
+             
+                size = Convert.ToInt32(textBox2.Text);
+                chart1.Series[0].Points.Clear();
+                chart1.Series[0].SetDefault(true);
+                chart1.Series[0].IsValueShownAsLabel = false;
+                chart1.ChartAreas[0].AxisX.Minimum = 0;
+                chart1.ChartAreas[0].AxisX.Maximum = size;
+                chart1.ChartAreas[0].AxisY.Minimum = 0;
+                listBox1.Items.Clear();
+
+                arr = new List<int>(size);
+                obj = new HashTable(size);
+                string s = "";
+                System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
+                long elapsedMs;
+                foreach (var i in input_text)
+                {
+                    if (i == '\n' || i == '\'')
+                    {
+                        int y = obj.Add(s);
+                        if (!arr.Contains(y)) arr.Add(y);
+                        s = "";
+                    }
+                    else
+                    {
+                        s += i;
+                    }
+
+
+                }
+                watch.Stop();
+                elapsedMs = watch.ElapsedMilliseconds;
+
+                int min = obj.Collections[arr[0]].Count();
+                int max = obj.Collections[arr[0]].Count();
+                for (int i = 1; i < size; i++)
+                {
+                    if (obj.Collections[arr[i]].Count() > max)
+                        max = obj.Collections[arr[i]].Count();
+                }
+                for (int i = 1; i < size; i++)
+                {
+                    if (obj.Collections[arr[i]].Count() < min)
+                        min = obj.Collections[arr[i]].Count();
+                }
+                time.Add(elapsedMs * elapsedMs);
+                
+                string minimum = "Min: " + min;
+                string maximum = "Max: " + max;
+                string outt = "std: ";
+               outt += Convert.ToString(Sigma(time));
+                
+                listBox1.Items.Add(minimum);
+                listBox1.Items.Add(maximum);
+            listBox1.Items.Add(outt);
+            for (int i = 0; i < size; i++)
+                {
+                    this.chart1.Series[0].Points.Add(obj.Collections[arr[i]].Count());
+                }
+            }
+
+            private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+            {
+
+            }
+
+            private void button3_Click_1(object sender, EventArgs e)
+            {
+                listBox2.Items.Clear();
+                string for_find = textBox2.Text;
+                string ag = obj.Find(for_find);
+                if (ag != "не нашел")
+                {
+                    listBox2.Items.Add("");
+                    int h = obj.GetHash(for_find);
+                    for (int i = 0; i < obj.Collections[h].Count; i++)
+                    {
+                        string s = "";
+                        s += obj.Collections[h][i] + " " + obj.Collections[h][i].Value;
+                        listBox2.Items.Add(s);
+                    }
+                }
+                else
+                {
+                    listBox2.Items.Add(ag);
+                }
+
+
+            }
+
+            private void ToolStripButton1_Click(object sender, EventArgs e)
+            {
+
+            }
+
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog1 = new OpenFileDialog();
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                string filename = openFileDialog1.FileName;
+                input_text = System.IO.File.ReadAllText(filename);
+            }
+        }
+
+        private void radioButton1_CheckedChanged(object sender, EventArgs e)
+        {
+            number = 2;
+        }
+
+        private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+    }
+    
+}
