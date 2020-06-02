@@ -1,0 +1,302 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+public class Node : IComparable
+{
+    public string Key;
+    public int Count;
+
+    public Node(string str, int Count)
+    {
+        Key = str;
+        this.Count = Count;
+    }
+
+    public int CompareTo(object obj)
+    {
+        if (obj == null) return 1;
+
+        Node otherTemperature = obj as Node;
+        if (otherTemperature != null)
+            return this.Key.CompareTo(otherTemperature.Key);
+        else
+            throw new ArgumentException("Object is not a Temperature");
+    }
+
+    // public static bool operator <(Node e1, Node e2)
+    // {
+    //   return e1.CompareTo(e2) < 0;
+    // }
+
+    // public static bool operator ==(Node e1, Node e2)
+    // {
+    //   return e1.CompareTo(e2) == 0;
+    // }
+}
+    public class mycomp : IEqualityComparer<string>
+{
+    public bool Equals(string x, string y)
+    {
+        return x == y;
+    }
+    public int GetHashCode(string obj)
+    {
+        int h = 0;//7;
+        foreach (var i in obj)
+            h = i + h;// + 31*h;
+        return h;
+    }
+}
+    public class Cell
+{
+    public int index;
+    public int value;
+    public string name;
+    public Cell(int i, int v, string n)
+    {
+        index = i;
+        value = v;
+        name = n;
+    }
+}
+
+
+    public class Dict<TKey, TValue>
+{
+    private struct Entry
+    {
+        public int hashCode; // Lower 31 bits of hash code, -1 if unused
+        public int next;     // Index of next entry, -1 if last
+        public TKey key;     // Key of entry
+        public TValue value; // Value of entry
+    }
+    private int[] buckets;
+    private Entry[] entries;
+    private int count;
+    private IEqualityComparer<TKey> comparer;
+
+    private int freeList;
+    private int freeCount;
+
+    public Dict(int size)
+    {
+        comparer = EqualityComparer<TKey>.Default;
+        buckets = new int[size];
+        for (int i = 0; i < buckets.Length; i++)
+            buckets[i] = -1;
+        entries = new Entry[size];
+        freeList = -1;
+    }
+    public Dict(int size, IEqualityComparer<TKey> cr)
+    {
+        comparer = cr;
+        buckets = new int[size];
+        for (int i = 0; i < buckets.Length; i++)
+            buckets[i] = -1;
+        entries = new Entry[size];
+        freeList = -1;
+    }
+    void Resize()
+    {
+        Resize(count * 2);
+    }
+    void Resize(int newSize)
+    {
+        int[] newBuckets = new int[newSize];
+        for (int i = 0; i < newBuckets.Length; i++)
+            newBuckets[i] = -1;
+        Entry[] newEntries = new Entry[newSize];
+        Array.Copy(entries, 0, newEntries, 0, count);
+
+        for (int i = 0; i < count; i++)
+        {
+            if (newEntries[i].hashCode >= 0)
+            {
+                int bucket = newEntries[i].hashCode % newSize;
+                newEntries[i].next = newBuckets[bucket];
+                newBuckets[bucket] = i;
+            }
+        }
+        buckets = newBuckets;
+        entries = newEntries;
+    }
+    public void Add(TKey key, TValue value)
+    {
+
+
+        int hashCode = comparer.GetHashCode(key) & 0x7FFFFFFF;
+        int targetBucket = hashCode % buckets.Length;
+
+
+        for (int i = buckets[targetBucket]; i >= 0; i = entries[i].next)
+        {
+            if (entries[i].hashCode == hashCode && comparer.Equals(entries[i].key, key))
+            {
+
+                entries[i].value = value;
+                return;
+            }
+
+        }
+        int index;
+        if (freeCount > 0)
+        {
+            index = freeList;
+            freeList = entries[index].next;
+            freeCount--;
+        }
+        else
+        {
+            if (count == entries.Length)
+            {
+                Resize();
+                targetBucket = hashCode % buckets.Length;
+            }
+            index = count;
+            count++;
+        }
+
+        entries[index].hashCode = hashCode;
+        entries[index].next = buckets[targetBucket];
+        entries[index].key = key;
+        entries[index].value = value;
+        buckets[targetBucket] = index;
+    }
+    private int FindEntry(TKey key)
+    {
+        int hashCode = comparer.GetHashCode(key) & 0x7FFFFFFF;
+        for (int i = buckets[hashCode % buckets.Length]; i >= 0; i = entries[i].next)
+        {
+            if (entries[i].hashCode == hashCode && comparer.Equals(entries[i].key, key))
+                return i;
+        }
+        return -1;
+    }
+    public void Print()
+    {
+        Console.WriteLine("Index\tBuckets\t\tEntries\n");
+        for (int i = 0; i != buckets.Length; i++)
+        {
+            Console.Write(i + "\t" + buckets[i] + "\t\t" + entries[i].key);
+            Console.Write(", Hash " + entries[i].hashCode);
+            Console.WriteLine(entries[i].next < 0 ? "" : (" -> " + entries[i].next));
+
+        }
+    }
+    public TValue this[TKey key]
+    {
+        get
+        {
+            int i = FindEntry(key);
+            if (i >= 0)
+                return entries[i].value;
+            return default(TValue);
+        }
+        set
+        {
+            Add(key, value);
+        }
+    }
+}
+
+    class Program
+{
+    static void Main(string[] args)
+    {
+        // var obj = new AVLTree<KeyValuePair<string, int>>();
+        // var obj = new AVLTree<TKey, TValue>();
+        // var obj = new AVLTree(); // string
+        // obj.Contains("the") --> true --> the, ++count
+
+
+        // string str1 = "the";
+        // string str2 = "queue";
+        // Console.WriteLine(str1.CompareTo(str2));
+
+        // Node obj1 = new Node("the", 1);
+        // Node obj2 = new Node("queue", 1);
+
+        // Console.WriteLine(obj1.CompareTo(obj2));
+
+        
+
+        // Dictionary
+        var dict = new Dictionary<string, int>(); //SortedDictionary AVLTree
+        string str = "";
+        string input_text = System.IO.File.ReadAllText(@"first.txt");
+        System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
+        long elapsedMs;
+        foreach (var i in input_text)
+        {
+            if (i >= 'a' && i <= 'z' ||
+                i >= 'A' && i <= 'Z' ||
+                i == '\'')
+                str += i;
+            else if (str.Length > 0)
+            {
+                if (dict.ContainsKey(str))
+                    ++dict[str];
+                else
+                    dict.Add(str, 1);
+
+              if (dict.TryGetValue(str, out var current_count))
+              dict[str] = ++current_count;
+               else
+               dict.Add(str, 1);
+
+                str = "";
+            }
+        }
+
+        // var list = new int [] {2, 4, 8, 12, 16, 20, 24, 28, 32};
+        // var table = new int [11];
+        // foreach(var i in list)
+        //  ++table[i % table.Length];
+        // foreach(var i in table)
+        //  Console.WriteLine(i);
+
+        // foreach(var i in dict)
+        //  Console.WriteLine(i.Key + " " + i.Value);
+
+        // Console.WriteLine("and" + " " + dict.GetCount("and"));
+        // Console.WriteLine("and" + " " + dict["and"]);
+        // watch.Stop();
+        // elapsedMs = watch.ElapsedMilliseconds;
+        // System.Console.WriteLine("time:  " + elapsedMs);
+
+        // Random r = new Random(1);
+        // var values = Enumerable.Range(0, 10).OrderBy(x => r.Next()).ToArray();
+        // var obj = new Cell [10];
+        // for(int i = 0; i != 10; i++ )
+        // {
+        //  obj[i] = new Cell(i, values[i], "asdf");
+        //  Console.WriteLine(obj[i].index + "\t" + obj[i].value + "\t" + obj[i].name);
+        // }
+        // Console.WriteLine();
+        // //Array.Sort(obj, (x, y) => x.value.CompareTo(y.value));
+        // obj = obj.OrderBy(x => x.value).ToArray();
+        // for(int i = 0; i != 10; i++ )
+        // {
+        //  Console.WriteLine(obj[i].index + "\t" + obj[i].value + "\t" + obj[i].name);
+        // }
+
+
+        var arr = new string[] {
+                "Alex", "Alyona", "Anton", "Artem", "Kate", "Nikita", "Olga"
+            };
+
+        var obj = new Dict<string, int>(4);//, new mycomp()
+        foreach (var i in arr)
+            obj.Add(i, 1);
+        obj["Ivan"] = 10;
+        obj.Print();
+        
+        watch.Stop();
+        elapsedMs = watch.ElapsedMilliseconds;
+        System.Console.WriteLine("time:  " + elapsedMs);
+    }
+}
